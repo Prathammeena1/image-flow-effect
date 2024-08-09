@@ -48,13 +48,15 @@ class Site {
     this.width = this.container.offsetWidth
     this.height = this.container.offsetHeight
     this.renderer.setSize(this.width,this.height)
-    this.camera.aspect = this.width / this.height
+    this.camera.aspect = (this.width / this.height)
     this.camera.updateProjectionMatrix();
     // this.setPosition()
+    // this.addImages();
+    this.render();
   }
 
   setupResize(){
-    window.addEventListener('resize', this.resize.bind(this), false); 
+    window.addEventListener('resize', this.resize.bind(this)); 
 
   }
 
@@ -73,7 +75,13 @@ class Site {
 
     const uniforms = {
       uTime:{value:0},
-      uImage:{value:textures[0]},
+      uTimeline:{value:0.2},
+      uStartIndex:{value:0},
+      uEndIndex:{value:1},
+      uImage1:{value:textures[0]},
+      uImage2:{value:textures[1]},
+      uImage3:{value:textures[2]},
+      uImage4:{value:textures[3]},
     }
 
     this.material = new THREE.ShaderMaterial({
@@ -108,6 +116,7 @@ class Site {
 
   render() {
     this.time++;
+    this.material.uniforms.uTime.value = this.time;
     this.renderer.render( this.scene, this.camera );
     window.requestAnimationFrame(this.render.bind(this));
   }

@@ -1,10 +1,12 @@
 import "./style.css";
 import * as THREE from "three";
+import vertex from "./shaders/vertex.glsl";
+import fragment from "./shaders/fragment.glsl";
 
 class Site {
   constructor({ dom }) {
-    this.container = dom;
     this.time = 0;
+    this.container = dom;
     this.width = window.innerWidth;
     this.height = window.innerHeight;
     this.images = [...dom.querySelectorAll(".images img")];
@@ -12,44 +14,109 @@ class Site {
     this.imageStore = [];
     this.uStartIndex = 0;
     this.uEndIndex = 1;
+
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(
       75,
-      this.width / this.height,
-      0.1,
-      1000
+      this.width/ this.height,
+      100,
+      2000
     );
-    this.camera.position.z = 5;
 
+    this.camera.position.z = 200;
+    this.camera.fov = 2 * Math.atan(this.height / 2 / 200) * (180/Math.PI);
 
     this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
+      antialias:true,
       alpha: true,
     });
-    this.renderer.setSize(this.width, this.height);
+
+    this.renderer.setPixelRatio(window.devicePixelRatio)
+    this.renderer.setSize(this.width,this.height);
     this.container.appendChild(this.renderer.domElement);
 
-    this.addObjects();
+    this.renderer.render(this.scene, this.camera)
+
+    this.addImages();
+    // this.setPosition()
+    this.resize();
+    this.setupResize();
     this.render();
   }
 
+  resize(){
+    this.width = this.container.offsetWidth
+    this.height = this.container.offsetHeight
+    this.renderer.setSize(this.width,this.height)
+    this.camera.aspect = (this.width / this.height)
+    this.camera.updateProjectionMatrix();
+    // this.setPosition()
+    // this.addImages();
+    this.render();
+  }
 
-  addObjects(){
-    this.geometry = new THREE.BoxGeometry( 1, 3, 1 );
-    this.material = new THREE.MeshBasicMaterial( { color: 'royalblue' ,wireframe:true } );
-    this.cube = new THREE.Mesh( this.geometry, this.material );
-    this.scene.add( this.cube );
+  setupResize(){
+    window.addEventListener('resize', this.resize.bind(this)); 
 
   }
 
 
+  setPosition(){
+    this.imageStore.forEach(img =>{
+      const bounds = img.img.getBoundingClientRect()
+      img.mesh.position.y = bounds.top + bounds.height / 2 - bounds.height / 2;
+      img.mesh.position.x = bounds.left - bounds.width / 2 + bounds.width / 2;
+    })
+  }
 
+  addImages(){
+    const textureLoader = new THREE.TextureLoader();
+    const textures = this.images.map(img => textureLoader.load(img.src));
+
+    const uniforms = {
+      uTime:{value:0},
+      uTimeline:{value:0.2},
+      uStartIndex:{value:0},
+      uEndIndex:{value:1},
+      uImage1:{value:textures[0]},
+      uImage2:{value:textures[1]},
+      uImage3:{value:textures[2]},
+      uImage4:{value:textures[3]},
+    }
+
+    this.material = new THREE.ShaderMaterial({
+      uniforms: uniforms,
+      vertexShader:vertex,
+      fragmentShader: fragment,
+      transparent: true,
+    })
+
+    this.images.forEach(img => {
+      const bounds = img.getBoundingClientRect();
+      const geometry = new THREE.PlaneGeometry(bounds.width, bounds.height)
+      const mesh = new THREE.Mesh(geometry,this.material);
+      this.scene.add(mesh);
+
+
+      this.imageStore.push({
+        img: img,
+        mesh: mesh,
+        top: bounds.top,
+        left: bounds.left,
+        width: bounds.width,
+        height: bounds.height,
+      });
+
+    })
+
+
+
+  }
 
 
   render() {
     this.time++;
-    // this.cube.rotation.x += 0.01;
-    this.cube.rotation.y += 0.01;
+    this.material.uniforms.uTime.value = this.time;
     this.renderer.render( this.scene, this.camera );
     window.requestAnimationFrame(this.render.bind(this));
   }

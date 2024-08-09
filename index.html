@@ -4,35 +4,43 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <style>
+    img {
+      opacity: 0;
+    }
+    .canvas canvas {
+      position: fixed;
+      z-index: 0;
+      top: 0;
+      left: 0;
+    }
+  </style>
 </head>
 <body>
-  
-  <div class="main w-full h-screen bg-zinc-900 flex text-white overflow-hidden">
+  <div class="main w-full h-screen bg-zinc-900 flex text-white">
     <div class="canvas w-1/2 h-screen relative">
-
-      <div class="images w-[25vw] h-[32vw] absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] overflow-hidden">
-        <img class="absolute w-full h-full object-cover" src="https://i.pinimg.com/564x/04/c7/60/04c7608858299d79470c8d9274145d22.jpg" alt="">
-        <img class="absolute w-full h-full object-cover" src="https://i.pinimg.com/736x/b1/72/26/b17226a7674767d97f941b9a6576ca0d.jpg" alt="">
-        <img class="absolute w-full h-full object-cover" src="https://i.pinimg.com/736x/3b/98/19/3b98190e31ba51c510300936fe630cca.jpg" alt="">
-        <img class="absolute w-full h-full object-cover" src="https://i.pinimg.com/736x/2f/2f/1e/2f2f1e12cc182584d495d58814b3468a.jpg" alt="">
-
+      <div class="images w-[23vw] h-[32vw] absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] ">
+        <img class="absolute w-full h-full object-cover" src="/images/img1.jpg" alt="">
+        <img class="absolute w-full h-full object-cover" src="/images/img2.jpg" alt="">
+        <img class="absolute w-full h-full object-cover" src="/images/img3.jpg" alt="">
+        <img class="absolute w-full h-full object-cover" src="/images/img4.jpg" alt="">
       </div>
     </div>
-    <div class="w-1/2 h-screen flex flex-col items-center justify-center overflow-hidden">
+    <div class="w-1/2 h-screen flex flex-col justify-center ">
       <div class="links flex flex-col gap-10">
-        <a class="lowercase cursor-pointer transition-all hover:ml-5 opacity-30 hover:opacity-100 block tracking-tighter text-[4vw]">
+        <a class="capitalize cursor-pointer transition-all hover:ml-5 opacity-30 hover:opacity-100 block tracking-tighter text-[4vw]">
           <small class="text-xl tracking-normal">01.</small>
           gangs of wasseypur
         </a>
-        <a class="lowercase cursor-pointer transition-all hover:ml-5 opacity-30 hover:opacity-100 block tracking-tighter text-[4vw]">
+        <a class="capitalize cursor-pointer transition-all hover:ml-5 opacity-30 hover:opacity-100 block tracking-tighter text-[4vw]">
           <small class="text-xl tracking-normal">02.</small>
           bella ciao
         </a>
-        <a class="lowercase cursor-pointer transition-all hover:ml-5 opacity-30 hover:opacity-100 block tracking-tighter text-[4vw]">
+        <a class="capitalize cursor-pointer transition-all hover:ml-5 opacity-30 hover:opacity-100 block tracking-tighter text-[4vw]">
           <small class="text-xl tracking-normal">03.</small>
           Dark
         </a>
-        <a class="lowercase cursor-pointer transition-all hover:ml-5 opacity-30 hover:opacity-100 block tracking-tighter text-[4vw]">
+        <a class="capitalize cursor-pointer transition-all hover:ml-5 opacity-30 hover:opacity-100 block tracking-tighter text-[4vw]">
           <small class="text-xl tracking-normal">04.</small>
           sacred games
         </a>
@@ -40,7 +48,6 @@
       </div>
     </div>
   </div>
-
   <script type="module" src="main.js"></script>
 </body>
 </html>

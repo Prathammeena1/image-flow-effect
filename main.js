@@ -2,6 +2,7 @@ import "./style.css";
 import * as THREE from "three";
 import vertex from "./shaders/vertex.glsl";
 import fragment from "./shaders/fragment.glsl";
+import gsap from "gsap";
 
 class Site {
   constructor({ dom }) {
@@ -20,94 +21,108 @@ class Site {
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(
       75,
-      this.width/ this.height,
+      this.width / this.height,
       100,
       2000
     );
 
     this.camera.position.z = 200;
-    this.camera.fov = 2 * Math.atan(this.height / 2 / 200) * (180/Math.PI);
+    this.camera.fov = 2 * Math.atan(this.height / 2 / 200) * (180 / Math.PI);
 
     this.renderer = new THREE.WebGLRenderer({
-      antialias:true,
+      antialias: true,
       alpha: true,
     });
 
-    this.renderer.setPixelRatio(window.devicePixelRatio)
-    this.renderer.setSize(this.width,this.height);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setSize(this.width, this.height);
     this.container.appendChild(this.renderer.domElement);
 
-    this.renderer.render(this.scene, this.camera)
+    this.renderer.render(this.scene, this.camera);
 
     this.addImages();
     // this.setPosition()
-    
-    
+
     this.resize();
     this.setupResize();
     this.render();
-    this.renderer.domElement.addEventListener('click', (event) => {
+
+
+
+    
+    function throttle(func, delay) {
+      let lastTime = 0;
+      
+      return function(...args) {
+        const now = new Date().getTime();
+        if (now - lastTime >= delay) {
+          func.apply(this, args);
+          lastTime = now;
+        }
+      };
+    }
+    
+    // Assuming `this.clickOnImage` is the function you want to throttle:
+    this.renderer.domElement.addEventListener("mousemove", throttle((event) => {
       this.clickOnImage(event);
-    });
+    }, 1000));
   }
 
-  resize(){
-    this.width = this.container.offsetWidth
-    this.height = this.container.offsetHeight
-    this.renderer.setSize(this.width,this.height)
-    this.camera.aspect = (this.width / this.height)
+
+
+  resize() {
+    this.width = this.container.offsetWidth;
+    this.height = this.container.offsetHeight;
+    this.renderer.setSize(this.width, this.height);
+    this.camera.aspect = this.width / this.height;
     this.camera.updateProjectionMatrix();
     // this.setPosition()
     // this.addImages();
     this.render();
   }
 
-  setupResize(){
-    window.addEventListener('resize', this.resize.bind(this)); 
-
+  setupResize() {
+    window.addEventListener("resize", this.resize.bind(this));
   }
 
-
-
-
-
-  setPosition(){
-    this.imageStore.forEach(img =>{
-      const bounds = img.img.getBoundingClientRect()
+  setPosition() {
+    this.imageStore.forEach((img) => {
+      const bounds = img.img.getBoundingClientRect();
       img.mesh.position.y = bounds.top + bounds.height / 2 - bounds.height / 2;
       img.mesh.position.x = bounds.left - bounds.width / 2 + bounds.width / 2;
-    })
+    });
   }
 
-  addImages(){
+  addImages() {
     const textureLoader = new THREE.TextureLoader();
-    const textures = this.images.map(img => textureLoader.load(img.src));
+    const textures = this.images.map((img) => textureLoader.load(img.src));
 
     const uniforms = {
-      uTime:{value:0},
-      uTimeline:{value:0.2},
-      uStartIndex:{value:0},
-      uEndIndex:{value:1},
-      uImage1:{value:textures[0]},
-      uImage2:{value:textures[1]},
-      uImage3:{value:textures[2]},
-      uImage4:{value:textures[3]},
-      uDropPosition:{value:this.dropPosition}
-    }
+      uTime: { value: 0 },
+      uStrength: { value: 0.0 },
+      uRadius: { value: 30.0 },
+      uTimeline: { value: 0.2 },
+      uStartIndex: { value: 0 },
+      uEndIndex: { value: 1 },
+      uImage1: { value: textures[0] },
+      uImage2: { value: textures[1] },
+      uImage3: { value: textures[2] },
+      uImage4: { value: textures[3] },
+      uDropPosition: { value: this.dropPosition },
+    };
 
     this.material = new THREE.ShaderMaterial({
       uniforms: uniforms,
-      vertexShader:vertex,
+      vertexShader: vertex,
       fragmentShader: fragment,
       transparent: true,
-    })
+    });
 
-    this.images.forEach(img => {
+    this.images.forEach((img) => {
       const bounds = img.getBoundingClientRect();
-      const geometry = new THREE.PlaneGeometry(bounds.width, bounds.height)
-      const mesh = new THREE.Mesh(geometry,this.material);
+      const geometry = new THREE.PlaneGeometry(bounds.width, bounds.height);
+      const mesh = new THREE.Mesh(geometry, this.material);
       this.scene.add(mesh);
-
 
       this.imageStore.push({
         img: img,
@@ -117,16 +132,10 @@ class Site {
         width: bounds.width,
         height: bounds.height,
       });
-
-    })
-
-
-
+    });
   }
 
-
-
-  clickOnImage(event){
+  clickOnImage(event) {
     const rect = this.renderer.domElement.getBoundingClientRect();
     const mouseX = (event.clientX - rect.left) / rect.width;
     const mouseY = (event.clientY - rect.top) / rect.height;
@@ -134,20 +143,43 @@ class Site {
     // Update drop position based on click
     this.dropPosition.set(mouseX, 1.0 - mouseY); // Flip Y-axis to match WebGL coordinates
     this.material.uniforms.uDropPosition.value = this.dropPosition;
-    
 
+
+    const tl = gsap.timeline();
+    tl.fromTo(
+      this.material.uniforms.uRadius,
+      {
+        value: 15.0,
+        duration: .5,
+      },
+      {
+        value: 5.0,
+        duration: .5,
+      },'a'
+    ).fromTo(
+      this.material.uniforms.uStrength,
+      {
+        value: 0.1,
+        duration: .8,
+      },
+      {
+        value: 0.0,
+        duration: .8,
+      },'a'
+    )
   }
 
-
-
   updateDropPosition() {
-    this.material.uniforms.uDropPosition.value = new THREE.Vector2(Math.random(), Math.random());
+    this.material.uniforms.uDropPosition.value = new THREE.Vector2(
+      Math.random(),
+      Math.random()
+    );
   }
 
   render() {
-    this.time+=.005;
+    this.time++;
     this.material.uniforms.uTime.value = this.time;
-    this.renderer.render( this.scene, this.camera );
+    this.renderer.render(this.scene, this.camera);
     window.requestAnimationFrame(this.render.bind(this));
   }
 }

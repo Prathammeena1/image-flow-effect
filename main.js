@@ -65,7 +65,8 @@ class Site {
     // Assuming `this.clickOnImage` is the function you want to throttle:
     this.renderer.domElement.addEventListener("mousemove", throttle((event) => {
       this.clickOnImage(event);
-    }, 1000));
+    }, 800));
+
   }
 
 
@@ -150,21 +151,21 @@ class Site {
       this.material.uniforms.uRadius,
       {
         value: 15.0,
-        duration: .5,
+        duration: .6,
       },
       {
-        value: 5.0,
-        duration: .5,
+        value: 8.0,
+        duration: .6,
       },'a'
     ).fromTo(
       this.material.uniforms.uStrength,
       {
         value: 0.1,
-        duration: .8,
+        duration: 1.0,
       },
       {
         value: 0.0,
-        duration: .8,
+        duration: 1.0,
       },'a'
     )
   }
@@ -177,7 +178,7 @@ class Site {
   }
 
   render() {
-    this.time++;
+    this.time+=.5;
     this.material.uniforms.uTime.value = this.time;
     this.renderer.render(this.scene, this.camera);
     window.requestAnimationFrame(this.render.bind(this));

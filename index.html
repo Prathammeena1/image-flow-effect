@@ -9,17 +9,20 @@
       opacity: 0;
     }
     .canvas canvas {
-      position: fixed;
+      position: absolute;
       z-index: 0;
-      top: 0;
+      top:0;
       left: 0;
+      height: 100%;
+      width: 100%;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="main w-full h-screen bg-zinc-900 flex text-white">
-    <div class="w-1/2 h-screen relative">
-      <div class="canvas relative w-[23vw] h-[32vw] bg-zinc-950">
+  <div class="main w-full h-screen bg-zinc-900 flex text-white overflow-y-auto">
+    <div class="w-1/2 h-screen flex items-center justify-center">
+      <div class="canvas relative w-[80%] h-[80%] ">
         <div class="images h-full w-full ">
           <img class="absolute w-full h-full object-cover" src="/images/img1.jpg" alt="">
           <img class="absolute w-full h-full object-cover" src="/images/img2.jpg" alt="">

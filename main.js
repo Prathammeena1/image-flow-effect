@@ -14,6 +14,8 @@ class Site {
     this.imageStore = [];
     this.uStartIndex = 0;
     this.uEndIndex = 1;
+    this.dropPosition = new THREE.Vector2(0.5, 0.5);
+    this.isAnimating = false;
 
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(
@@ -39,9 +41,14 @@ class Site {
 
     this.addImages();
     // this.setPosition()
+    
+    
     this.resize();
     this.setupResize();
     this.render();
+    this.renderer.domElement.addEventListener('click', (event) => {
+      this.clickOnImage(event);
+    });
   }
 
   resize(){
@@ -59,6 +66,9 @@ class Site {
     window.addEventListener('resize', this.resize.bind(this)); 
 
   }
+
+
+
 
 
   setPosition(){
@@ -82,6 +92,7 @@ class Site {
       uImage2:{value:textures[1]},
       uImage3:{value:textures[2]},
       uImage4:{value:textures[3]},
+      uDropPosition:{value:this.dropPosition}
     }
 
     this.material = new THREE.ShaderMaterial({
@@ -114,8 +125,27 @@ class Site {
   }
 
 
+
+  clickOnImage(event){
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    const mouseX = (event.clientX - rect.left) / rect.width;
+    const mouseY = (event.clientY - rect.top) / rect.height;
+
+    // Update drop position based on click
+    this.dropPosition.set(mouseX, 1.0 - mouseY); // Flip Y-axis to match WebGL coordinates
+    this.material.uniforms.uDropPosition.value = this.dropPosition;
+    
+
+  }
+
+
+
+  updateDropPosition() {
+    this.material.uniforms.uDropPosition.value = new THREE.Vector2(Math.random(), Math.random());
+  }
+
   render() {
-    this.time++;
+    this.time+=.005;
     this.material.uniforms.uTime.value = this.time;
     this.renderer.render( this.scene, this.camera );
     window.requestAnimationFrame(this.render.bind(this));

@@ -2,6 +2,7 @@ import "./style.css";
 import * as THREE from "three";
 import vertex from "./shaders/vertex.glsl";
 import fragment from "./shaders/fragment.glsl";
+import gsap from "gsap";
 
 class Site {
   constructor({ dom }) {
@@ -41,6 +42,7 @@ class Site {
     // this.setPosition()
     this.resize();
     this.setupResize();
+    this.hoverOverLinks();
     this.render();
   }
 
@@ -108,14 +110,46 @@ class Site {
       });
 
     })
-
-
-
   }
 
 
+
+  hoverOverLinks() {
+    const links = document.querySelectorAll('.links a');
+    
+    links.forEach((link, i) => {
+        link.addEventListener('mouseover', () => {
+            this.material.uniforms.uTimeline.value = 0.0;
+
+            gsap.to(this.material.uniforms.uTimeline, {
+                value: 40.0,
+                duration: 2,
+                onStart: () => {
+                    this.uEndIndex = i;
+                    this.material.uniforms.uStartIndex.value = this.uStartIndex;
+                    this.material.uniforms.uEndIndex.value = this.uEndIndex;
+                    this.uStartIndex = this.uEndIndex;
+                }
+            });
+        });
+        link.addEventListener('mouseout', () => {
+            this.material.uniforms.uTimeline.value = 0.0;
+
+            gsap.to(this.material.uniforms.uTimeline, {
+                value: 0,
+                duration: 2
+            });
+        });
+    });
+}
+
+
+
+
+
+
   render() {
-    this.time++;
+    this.time+=.1;
     this.material.uniforms.uTime.value = this.time;
     this.renderer.render( this.scene, this.camera );
     window.requestAnimationFrame(this.render.bind(this));

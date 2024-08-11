@@ -1,4 +1,7 @@
 uniform float uTime;
+uniform float uTimeline;
+uniform int uStartIndex;
+uniform int uEndIndex;
 uniform sampler2D uImage1;
 uniform sampler2D uImage2;
 uniform sampler2D uImage3;
@@ -38,6 +41,24 @@ float fbm(vec2 x) {
 	return v;
 }
 
+vec4 sampleColor(int index, vec2 uv){
+  if(index == 0) {
+    return texture2D(uImage1, uv);
+  }
+  else if(index == 1) {
+    return texture2D(uImage2, uv);
+  }
+  else if(index == 2) {
+    return texture2D(uImage3, uv);
+  }
+  else if(index == 3) {
+    return texture2D(uImage4, uv);
+  }
+
+  return vec4(1.0);
+ 
+}
+
 
 
 
@@ -46,11 +67,12 @@ void main() {
   
 
  
-  float wave = fbm(1.5 * uv + uTime/500.0);
+  float wave = fbm(3.5 * uv + uTime/20.0);
   
   
+  float strength = smoothstep(.0,1.0,uTimeline) - smoothstep(2.0,3.0,uTimeline) ;
 
-  float distort = 1.2;
+  float distort = mix(1.0 , 1.2 + strength,wave);
   uv -= 0.5;
   uv *= distort;
   uv += 0.5;
@@ -60,6 +82,14 @@ void main() {
   }
 
 
+  vec4 startTexture = sampleColor(uStartIndex,uv);
+  vec4 endTexture = sampleColor(uEndIndex,uv);
 
-  gl_FragColor = texture2D(uImage4, uv);
+  float changeTimeline = smoothstep(.001,50.0,uTimeline);
+  float mixer = 1.0 - step(changeTimeline,wave);
+
+  vec4 tex = mix(startTexture,endTexture,mixer);
+
+
+  gl_FragColor =tex;
 }

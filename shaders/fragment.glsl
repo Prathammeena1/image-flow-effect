@@ -50,7 +50,7 @@ void main() {
   
   
 
-  float distort = 1.2;
+  float distort = 1.2 +wave ;
   uv -= 0.5;
   uv *= distort;
   uv += 0.5;

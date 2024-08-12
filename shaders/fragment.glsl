@@ -32,5 +32,5 @@ void main() {
     }
 
     // Sample the texture using the distorted UVs
-    gl_FragColor = texture2D(uImage3, uv);
+    gl_FragColor = texture2D(uImage4, uv);
 }
